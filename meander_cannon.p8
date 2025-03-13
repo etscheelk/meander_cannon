@@ -8,17 +8,7 @@ __lua__
 function _init()
 end
 
-local x = 64
-local y = 64
-
 local pi = 3.141592
-
-local rot = 0
-local rot_vel = 0 
-local rot_acc = 0.5
-local rot_vel_max = pi 
-local rot_de_acc = -0.1
-local len = 12
 
 local dt = 1/30
 
@@ -53,17 +43,75 @@ function draw_frame(color)
 end
 
 local fire = false
+local cannonball = {}
+-- setmetatable(cannonball.__index, cannonball)
+cannonball.__index = cannonball
+function cannonball:new(position, velocity)
+ local cb = setmetatable({}, cannonball)
+ cb.pos = position
+ cb.vel = velocity
+ cb.sprite = 2
+ cb.discard = false
+
+ return cb
+end
+
+-- update position
+function cannonball:update()
+ if self == nil then return end
+
+ self.pos.x += dt * self.vel.x
+ self.pos.y += dt * self.vel.y
+
+ if self.pos.x > 128 or self.pos.x < 0 then self.discard = true end
+ if self.pos.y > 128 or self.pos.y < 0 then self.discard = true end
+end
+
 local cannonballs = {}
+-- cannonballs.__index = cannonballs
+-- function cannonballs:discard()
+--  local d = {}
+--  for i,v in pairs(self) do
+--   if v and v.discard then add(d, i) end
+--  end
+
+--  for i in all(d) do
+--   deli(self, i)
+--  end
+-- end
+
+function cannonball:draw()
+ if self == nil then return end
+
+ spr(2, self.pos.x, self.pos.y)
+end
 
 function _update()
+ -- run discard
+ -- cannonballs:discard()
  -- if btn(0) then rot -= 0.01 end
  -- if btn(1) then rot += 0.01 end
  if btn(0) then cannon:rotate(-0.01) end
  if btn(1) then cannon:rotate(0.01)  end
 
+ 
+ 
+
+ if btnp(2) then
+  -- printh("button pressed", "log.txt")
+  local cb = cannonball:new({x=cannon.tip.x, y=cannon.tip.y}, {x=25*cos(cannon.rot), y=-25*sin(cannon.rot)})
+  add(cannonballs, cb)
+ end
+
+ -- print("fire!!")
  if btnp(5) then fire = true end
  if fire then 
+  -- print("fire!")
   fire = false
+ end
+
+ for _,cb in ipairs(cannonballs) do
+  cb:update()
  end
 
 end
@@ -91,16 +139,24 @@ function _draw()
  spr(0, 57, 57, 2, 2)
  -- line(63, 63)
  cannon:draw()
+
+ for _,cb in pairs(cannonballs) do
+  cb:draw()
+ end
+
+ print(#cannonballs)
+ -- ?t()
+
  
 end
 
 __gfx__
 00000767667000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00077666666ff0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-0076666666666f000099a80000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+0076666666666f000009800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 07666666666666f0009aaa0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 07666666666666f000aaa90000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-7666666666666665008a990000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+76666666666666650008900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 76666666666666650000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 76666666666666650000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 76666666666666650000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
