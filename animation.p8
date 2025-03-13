@@ -12,21 +12,27 @@ function animation:new(sprites, n_delta_frames)
  -- number of frames between steps
  ret.delta_frames = n_delta_frames
 
- -- 1-indexed
- current_sprite = 1
+ -- 0-indexed
+ ret.current_sprite = 0
  return ret
 end
 
 function animation:update(frame)
+ if self == nil then return end
+
  self.time += frame
+ -- print("anim update")
+ -- printh("self.time:"..self.time, "my_log.txt")
  if self.time >= self.delta_frames then
-  self.time -= self.delta_frames
+--   printh("t:"..self.time.." df:"..self.delta_frames, "my_log.txt", false)
+  self.time = 0
+  self.current_sprite = (self.current_sprite + 1) % #self.sprites
  end
 
- self.current_sprite = ((self.current_sprite + 1) % #self.sprites) + 1
 end
 
 function animation:draw(x, y)
- local num = self.sprites[self.current_sprite]
+ -- print(self.current_sprite)
+ local num = self.sprites[self.current_sprite+1]
  spr(num, x-4, y-4, 1, 1)
 end
