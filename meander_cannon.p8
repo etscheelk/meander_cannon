@@ -6,7 +6,7 @@ __lua__
 #include table.p8
 #include animation.p8
 
-printh("my_log.txt", "my_log.txt", true)
+printh("my_log.txt", "./meander_cannon/my_log.txt", true)
 
 function _init()
 end
@@ -47,7 +47,6 @@ end
 
 local fire = false
 local cannonball = {}
--- setmetatable(cannonball.__index, cannonball)
 cannonball.__index = cannonball
 function cannonball:new(position, velocity)
  local cb = setmetatable({}, self)
@@ -55,7 +54,7 @@ function cannonball:new(position, velocity)
  cb.vel = velocity
  cb.sprite = 2
  cb.discard = false
- cb.animation = animation:new({2, 3}, 2)
+ cb.animation = animation:new({2, 3}, 4)
 
  return cb
 end
@@ -71,10 +70,29 @@ function cannonball:update()
 
  if self.pos.x > 128 or self.pos.x < 0 then self.discard = true end
  if self.pos.y > 128 or self.pos.y < 0 then self.discard = true end
+
+ -- if self.discard then self = nil end
+
+ -- if self.discard == true then printh("I am discardable", "./meander_cannon/my_log.txt") end
+ -- printh("I am a cannonball", "./meander_cannon/my_log.txt")
 end
 
 local cannonballs = {}
 -- cannonballs.__index = cannonballs
+local function discard(table)
+ local d = {}
+ for i, v in pairs(table) do
+  -- printh("i:"..i.." v:"..v, "my_log.txt", false)
+  if v and v.discard then add(d, i) end
+ end
+
+ for i in all(d) do
+  -- printh("index to delete:"..i, "./meander_cannon/my_log.txt", false)
+  -- deli(self, i)
+  -- table[i] = nil
+  deli(table, i)
+ end
+end
 -- function cannonballs:discard()
 --  local d = {}
 --  for i,v in pairs(self) do
@@ -100,8 +118,8 @@ function _update()
  -- if btn(1) then rot += 0.01 end
  if btn(0) then cannon:rotate(-0.01) end
  if btn(1) then cannon:rotate(0.01)  end
-
  
+ discard(cannonballs)
  
 
  if btnp(2) then
@@ -109,6 +127,7 @@ function _update()
 --   local cb = cannonball:new({x=cannon.tip.x, y=cannon.tip.y}, {x=25*cos(cannon.rot), y=-25*sin(cannon.rot)})
   local cb = cannonball:new(table.deepcopy(cannon.tip), {x=40*cos(cannon.rot), y=-40*sin(cannon.rot)})
   add(cannonballs, cb)
+  sfx(0, -1)
  end
 
  -- print("fire!!")
@@ -160,7 +179,7 @@ end
 
 
 __gfx__
-00000767667000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000777777000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00077666666ff00000000000000000000008800000bbbbb000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0076666666666f0000098000000a90000088880000b000b000000000000000000000000000000000000000000000000000000000000000000000000000000000
 07666666666666f0009aaa00008aa9000080080000b000b000000000000000000000000000000000000000000000000000000000000000000000000000000000
@@ -193,4 +212,4 @@ __gfx__
 04533300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00555500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __sfx__
-00010000002201a2202022024230272302a2302c2302e220302203221033210332103321032220302102d21028220212301b23016240132601126010260122601426016250182301c22020220232202523000230
+000200000060021110267402a6102c6102c6102d6502e600306003260033600336003360032600306002d60028600216001b60016600136001160010600126001460016600186001c60020600236002560000600
